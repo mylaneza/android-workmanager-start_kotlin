@@ -64,8 +64,13 @@ class BlurViewModel(application: Application) : ViewModel() {
             continuation = continuation.then(blurBuilder.build())
         }
 
+        val constraints = Constraints.Builder()
+            .setRequiresCharging(true)
+            .build()
         val save = OneTimeWorkRequest.Builder(SaveImageToFileWorker::class.java).
-            addTag(TAG_OUTPUT).build()
+            addTag(TAG_OUTPUT).
+            setConstraints(constraints).
+            build()
         continuation = continuation.then(save)
         continuation.enqueue()
     }
