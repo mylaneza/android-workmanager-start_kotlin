@@ -19,6 +19,7 @@ class BlurWorker(ctx : Context , params: WorkerParameters) : Worker(ctx,params) 
         val appContext = applicationContext
         val resourceUri = inputData.getString(KEY_IMAGE_URI)
         makeStatusNotification("Bluring image", appContext)
+        sleep()
         try {
             //val picture = BitmapFactory.decodeResource(appContext.resources, R.drawable.android_cupcake)
 
