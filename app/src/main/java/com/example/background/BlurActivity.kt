@@ -16,6 +16,7 @@
 
 package com.example.background
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
@@ -40,6 +41,20 @@ class BlurActivity : AppCompatActivity() {
 
         binding.goButton.setOnClickListener { viewModel.applyBlur(blurLevel) }
         viewModel.outputWorkInfos.observe(this,workInfoObserver())
+        binding.seeFileButton.setOnClickListener {
+            viewModel.outputUri?.let { currentUri ->
+                val actionView = Intent(Intent.ACTION_VIEW,currentUri)
+                startActivity(actionView)
+                if(android.os.Build.VERSION.SDK_INT < 32)
+                    startActivity(actionView)
+                else{
+                    actionView.resolveActivity(packageManager)?.run{
+                       startActivity(actionView)
+                    }
+                }
+            }
+        }
+
     }
 
     private fun workInfoObserver() : Observer<List<WorkInfo>> {
@@ -47,10 +62,21 @@ class BlurActivity : AppCompatActivity() {
             if(listOfWorkInfo.isNullOrEmpty())
                 return@Observer
             val workInfo = listOfWorkInfo[0]
-            if(!workInfo.state.isFinished){
+            if(workInfo.state.isFinished){
                 showWorkInProgress()
+                showWorkFinished()
+                val outputImageUri =workInfo.outputData.getString(KEY_IMAGE_URI)
+                if(!outputImageUri.isNullOrEmpty()){
+                    viewModel.setOutputUri(outputImageUri)
+                    binding.seeFileButton.visibility = View.VISIBLE
+                }
             }else{
                 showWorkFinished()
+                val outputImageUri =workInfo.outputData.getString(KEY_IMAGE_URI)
+                if(!outputImageUri.isNullOrEmpty()){
+                    viewModel.setOutputUri(outputImageUri)
+                    binding.seeFileButton.visibility = View.VISIBLE
+                }
             }
         }
     }
